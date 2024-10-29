@@ -89,7 +89,7 @@ useful, out-of-the-box features for MyBatis, use it can effectively save your de
         <version>Latest Version</version>
       </dependency>
       ```
-    - `^3.9.6` may need additional citations
+    - `^3.5.9` may need additional citations
         - jdk11+
       ```xml
       <dependency>

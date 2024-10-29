@@ -64,7 +64,7 @@ Mybatis 增强工具包 - 只做增强不做改变，简化`CRUD`操作
       </dependency>
       ```
     - `^3.9.6` 你可能需要额外的引用
-        - jdk8+
+        - jdk11+
       ```xml
       <dependency>
         <groupId>com.baomidou</groupId>

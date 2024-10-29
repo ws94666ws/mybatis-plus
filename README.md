@@ -90,7 +90,7 @@ useful, out-of-the-box features for MyBatis, use it can effectively save your de
       </dependency>
       ```
     - `^3.9.6` may need additional citations
-        - jdk8+
+        - jdk11+
       ```xml
       <dependency>
         <groupId>com.baomidou</groupId>

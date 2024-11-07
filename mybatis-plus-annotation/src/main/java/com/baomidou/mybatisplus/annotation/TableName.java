@@ -68,7 +68,18 @@ public @interface TableName {
     boolean autoResultMap() default false;
 
     /**
+     * 只需要的属性名
+     * <p>
+     * 与{@link #excludeProperty()} 二选一配置,都配置了则只有此配置生效
+     *
+     * @since 3.5.10
+     */
+    String[] properties() default {};
+
+    /**
      * 需要排除的属性名
+     * <p>
+     * 与{@link #properties()} 二选一配置,都配置了则{@link #properties()} 配置生效
      *
      * @since 3.3.1
      */

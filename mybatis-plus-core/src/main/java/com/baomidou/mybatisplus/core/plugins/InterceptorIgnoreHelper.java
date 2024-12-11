@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author miemie
@@ -80,6 +81,35 @@ public abstract class InterceptorIgnoreHelper {
             return cache;
         }
         return null;
+    }
+
+    /**
+     * 获取忽略策略缓存信息
+     *
+     * @param key key
+     * @return 策略信息
+     * @since 3.5.10
+     */
+    public static IgnoreStrategy getIgnoreStrategy(String key) {
+        return IGNORE_STRATEGY_CACHE.get(key);
+    }
+
+    /**
+     * 按指定策略执行指定方法
+     *
+     * @param ignoreStrategy 忽略策略
+     * @param supplier       执行方法
+     * @param <T>            T
+     * @return 返回值
+     * @since 3.5.10
+     */
+    public static <T> T execute(IgnoreStrategy ignoreStrategy, Supplier<T> supplier) {
+        try {
+            handle(ignoreStrategy);
+            return supplier.get();
+        } finally {
+            clearIgnoreStrategy();
+        }
     }
 
     /**

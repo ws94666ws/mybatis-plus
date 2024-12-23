@@ -17,7 +17,7 @@ package com.baomidou.mybatisplus.core.override;
 
 import com.baomidou.mybatisplus.core.plugins.IgnoreStrategy;
 import com.baomidou.mybatisplus.core.plugins.InterceptorIgnoreHelper;
-import com.baomidou.mybatisplus.core.toolkit.StringPool;
+import com.baomidou.mybatisplus.core.toolkit.MybatisUtils;
 import org.apache.ibatis.binding.MapperProxy;
 import org.apache.ibatis.reflection.ExceptionUtil;
 import org.apache.ibatis.session.SqlSession;
@@ -167,11 +167,9 @@ public class MybatisMapperProxy<T> implements InvocationHandler, Serializable {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
             try {
-                String className = method.getDeclaringClass().getName();
-                IgnoreStrategy ignoreStrategy = InterceptorIgnoreHelper.getIgnoreStrategy(className + StringPool.DOT + method.getName());
-                if (ignoreStrategy == null) {
-                    ignoreStrategy = InterceptorIgnoreHelper.getIgnoreStrategy(className);
-                }
+                MybatisMapperProxy<?> mybatisMapperProxy = MybatisUtils.getMybatisMapperProxy(proxy);
+                Class<?> mapperInterface = mybatisMapperProxy.getMapperInterface();
+                IgnoreStrategy ignoreStrategy = InterceptorIgnoreHelper.findIgnoreStrategy(mapperInterface, method);
                 if (ignoreStrategy != null) {
                     InterceptorIgnoreHelper.handle(ignoreStrategy);
                 }

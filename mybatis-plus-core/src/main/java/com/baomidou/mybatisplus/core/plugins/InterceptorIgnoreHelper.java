@@ -49,8 +49,9 @@ public abstract class InterceptorIgnoreHelper {
      * InterceptorIgnoreHelper.handle(IgnoreStrategy.builder().tenantLine(true).build());
      * </p>
      * <p>
-     * 注意，需要手动关闭调用方法 InterceptorIgnoreHelper.clearIgnoreStrategy();
+     * 注意，需要手动关闭调用方法 {@link #clearIgnoreStrategy()}
      * </p>
+     * <p>简化操作可请使用{@link #execute(IgnoreStrategy, Supplier)}</p>
      *
      * @param ignoreStrategy {@link IgnoreStrategy}
      */
@@ -110,6 +111,24 @@ public abstract class InterceptorIgnoreHelper {
         } finally {
             clearIgnoreStrategy();
         }
+    }
+
+    /**
+     * 通过方法获取策略信息(优先级方法注解>当前类注解)
+     *
+     * @param method 方法信息
+     * @return 忽略策略信息
+     * @see #initSqlParserInfoCache(Class)
+     * @see #initSqlParserInfoCache(IgnoreStrategy, String, Method)
+     * @since 3.5.10
+     */
+    public static IgnoreStrategy findIgnoreStrategy(Class<?> clz, Method method) {
+        String className = clz.getName();
+        IgnoreStrategy ignoreStrategy = getIgnoreStrategy(method.getDeclaringClass().getName() + StringPool.DOT + method.getName());
+        if (ignoreStrategy == null) {
+            ignoreStrategy = getIgnoreStrategy(className);
+        }
+        return ignoreStrategy;
     }
 
     /**

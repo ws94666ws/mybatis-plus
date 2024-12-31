@@ -310,7 +310,7 @@ public abstract class AbstractTemplateEngine {
         Map<String, Object> entityData = strategyConfig.entity().renderData(tableInfo);
         objectMap.putAll(entityData);
         objectMap.put("config", config);
-        objectMap.put("package", config.getPackageConfig().getPackageInfo());
+        objectMap.put("package", config.getPackageConfig().getPackageInfo(config.getInjectionConfig()));
         GlobalConfig globalConfig = config.getGlobalConfig();
         objectMap.put("author", globalConfig.getAuthor());
         objectMap.put("kotlin", globalConfig.isKotlin());

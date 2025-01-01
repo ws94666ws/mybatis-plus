@@ -131,6 +131,9 @@ public class MybatisXMLScriptBuilder extends BaseBuilder {
             XNode child = node.newXNode(children.item(i));
             if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
                 String text = cacheStr(child.getStringBody(""));
+                if (text.trim().isEmpty()) {
+                    continue;
+                }
                 TextSqlNode textSqlNode = new TextSqlNode(text);
                 if (textSqlNode.isDynamic()) {
                     contents.add(textSqlNode);

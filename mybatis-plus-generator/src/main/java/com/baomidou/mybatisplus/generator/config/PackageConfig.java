@@ -129,6 +129,7 @@ public class PackageConfig {
      * @deprecated 3.5.10
      */
     @NotNull
+    @Deprecated
     public Map<String, String> getPackageInfo() {
         return getPackageInfo((InjectionConfig) null);
     }
@@ -174,6 +175,7 @@ public class PackageConfig {
      *
      * @param module 模块
      * @return 配置信息
+     * @see #getPackageInfo(InjectionConfig, String)
      * @since 3.5.0
      */
     @Deprecated

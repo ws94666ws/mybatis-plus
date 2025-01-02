@@ -15,6 +15,7 @@
  */
 package com.baomidou.mybatisplus.core;
 
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.apache.ibatis.builder.BaseBuilder;
 import org.apache.ibatis.builder.BuilderException;
@@ -130,10 +131,11 @@ public class MybatisXMLScriptBuilder extends BaseBuilder {
         for (int i = 0; i < children.getLength(); i++) {
             XNode child = node.newXNode(children.item(i));
             if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
-                String text = cacheStr(child.getStringBody(""));
-                if (text.trim().isEmpty()) {
+                String text = cacheStr(child.getStringBody("")).trim();
+                if (text.isEmpty()) {
                     continue;
                 }
+                text += StringPool.SPACE;
                 TextSqlNode textSqlNode = new TextSqlNode(text);
                 if (textSqlNode.isDynamic()) {
                     contents.add(textSqlNode);

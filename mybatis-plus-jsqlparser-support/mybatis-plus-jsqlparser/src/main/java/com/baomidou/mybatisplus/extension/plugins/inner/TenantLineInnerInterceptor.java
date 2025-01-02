@@ -84,9 +84,9 @@ public class TenantLineInnerInterceptor extends BaseMultiTableInnerInterceptor i
     protected void processSelect(Select select, int index, String sql, Object obj) {
         final String whereSegment = (String) obj;
         processSelectBody(select, whereSegment);
-        List<WithItem> withItemsList = select.getWithItemsList();
+        List<WithItem<?>> withItemsList = select.getWithItemsList();
         if (!CollectionUtils.isEmpty(withItemsList)) {
-            withItemsList.forEach(withItem -> processSelectBody(withItem, whereSegment));
+            withItemsList.forEach(withItem -> processSelectBody(withItem.getSelect(), whereSegment));
         }
     }
 

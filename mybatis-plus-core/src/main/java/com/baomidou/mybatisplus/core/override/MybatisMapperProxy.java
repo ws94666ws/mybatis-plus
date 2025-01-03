@@ -166,16 +166,22 @@ public class MybatisMapperProxy<T> implements InvocationHandler, Serializable {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args, SqlSession sqlSession) throws Throwable {
-            try {
-                MybatisMapperProxy<?> mybatisMapperProxy = MybatisUtils.getMybatisMapperProxy(proxy);
-                Class<?> mapperInterface = mybatisMapperProxy.getMapperInterface();
-                IgnoreStrategy ignoreStrategy = InterceptorIgnoreHelper.findIgnoreStrategy(mapperInterface, method);
-                if (ignoreStrategy != null) {
-                    InterceptorIgnoreHelper.handle(ignoreStrategy);
-                }
+            boolean hasIgnoreStrategy = InterceptorIgnoreHelper.hasIgnoreStrategy();
+            if (hasIgnoreStrategy) {
                 return methodHandle.bindTo(proxy).invokeWithArguments(args);
-            } finally {
-                InterceptorIgnoreHelper.clearIgnoreStrategy();
+            } else {
+                try {
+                    MybatisMapperProxy<?> mybatisMapperProxy = MybatisUtils.getMybatisMapperProxy(proxy);
+                    Class<?> mapperInterface = mybatisMapperProxy.getMapperInterface();
+                    IgnoreStrategy ignoreStrategy = InterceptorIgnoreHelper.findIgnoreStrategy(mapperInterface, method);
+                    if (ignoreStrategy == null) {
+                        ignoreStrategy = IgnoreStrategy.DEFAULT;
+                    }
+                    InterceptorIgnoreHelper.handle(ignoreStrategy);
+                    return methodHandle.bindTo(proxy).invokeWithArguments(args);
+                } finally {
+                    InterceptorIgnoreHelper.clearIgnoreStrategy();
+                }
             }
         }
     }

@@ -67,6 +67,16 @@ public abstract class InterceptorIgnoreHelper {
     }
 
     /**
+     * 判断当前线程是否有忽略策略
+     *
+     * @return 是否有忽略策略
+     * @since 3.5.10
+     */
+    public static boolean hasIgnoreStrategy() {
+        return IGNORE_STRATEGY_LOCAL.get() != null;
+    }
+
+    /**
      * 初始化缓存
      * <p>
      * Mapper 上 InterceptorIgnore 注解信息
@@ -96,7 +106,7 @@ public abstract class InterceptorIgnoreHelper {
     }
 
     /**
-     * 按指定策略执行指定方法
+     * 按指定策略执行指定方法 (忽略线程级别,参数执行级使用最高)
      *
      * @param ignoreStrategy 忽略策略
      * @param supplier       执行方法

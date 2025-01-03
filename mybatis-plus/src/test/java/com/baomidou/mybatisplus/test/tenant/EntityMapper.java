@@ -2,6 +2,8 @@ package com.baomidou.mybatisplus.test.tenant;
 
 import com.baomidou.mybatisplus.annotation.InterceptorIgnore;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.plugins.IgnoreStrategy;
+import com.baomidou.mybatisplus.core.plugins.InterceptorIgnoreHelper;
 import org.apache.ibatis.annotations.CacheNamespace;
 
 import java.io.Serializable;
@@ -33,6 +35,37 @@ public interface EntityMapper extends BaseMapper<Entity> {
     default Entity selectByIdWithIgnore(Serializable id) {
         return selectById(id);
     }
+
+    @InterceptorIgnore(tenantLine = "false")
+    default Entity selectByIdWithIgnore2(Serializable id) {
+        return selectByIdWithIgnore(id);
+    }
+
+    default Entity selectByIdWithIgnore3(Serializable id) {
+        return selectByIdWithIgnore(id);
+    }
+
+    default Entity selectByIdWithIgnore4(Serializable id) {
+        return selectByIdWithIgnore2(id);
+    }
+
+    default Entity selectByIdWithIgnore5(Serializable id) {
+        return selectById(id);
+    }
+
+    default Entity selectByIdWithIgnore6(IgnoreStrategy ignoreStrategy, Serializable id) {
+        return InterceptorIgnoreHelper.execute(ignoreStrategy, ()-> selectById(id));
+    }
+
+    default Entity selectByIdWithIgnore7(IgnoreStrategy ignoreStrategy, Serializable id) {
+        return InterceptorIgnoreHelper.execute(ignoreStrategy, ()-> selectByIdWithIgnore(id));
+    }
+
+    default Entity selectByIdWithIgnore8(IgnoreStrategy ignoreStrategy, Serializable id) {
+        return InterceptorIgnoreHelper.execute(ignoreStrategy, ()-> selectByIdWithIgnore2(id));
+    }
+
+
 
 //    /**
 //     *  //TODO 由于是对ms级别的忽略,所以不考虑重载方法, 忽略deleteById方法

@@ -124,6 +124,7 @@ public class MybatisXMLScriptBuilder extends BaseBuilder {
         return str;
     }
 
+    private static final StaticTextSqlNode SPACE_SQL_NODE = new StaticTextSqlNode(StringPool.SPACE);
 
     protected MixedSqlNode parseDynamicTags(XNode node) {
         List<SqlNode> contents = new ArrayList<>();
@@ -133,9 +134,9 @@ public class MybatisXMLScriptBuilder extends BaseBuilder {
             if (child.getNode().getNodeType() == Node.CDATA_SECTION_NODE || child.getNode().getNodeType() == Node.TEXT_NODE) {
                 String text = cacheStr(child.getStringBody("")).trim();
                 if (text.isEmpty()) {
+                    contents.add(SPACE_SQL_NODE);
                     continue;
                 }
-                text += StringPool.SPACE;
                 TextSqlNode textSqlNode = new TextSqlNode(text);
                 if (textSqlNode.isDynamic()) {
                     contents.add(textSqlNode);

@@ -304,7 +304,7 @@ public abstract class BaseMultiTableInnerInterceptor extends JsqlParserSupport i
                 joinTables = processSubJoin((ParenthesedFromItem) joinItem, whereSegment);
             }
 
-            if (joinTables != null) {
+            if (joinTables != null && !joinTables.isEmpty()) {
 
                 // 如果是隐式内连接
                 if (join.isSimple()) {

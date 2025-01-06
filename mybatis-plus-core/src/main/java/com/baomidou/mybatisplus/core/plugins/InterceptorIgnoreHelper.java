@@ -107,6 +107,13 @@ public abstract class InterceptorIgnoreHelper {
 
     /**
      * 按指定策略执行指定方法 (忽略线程级别,参数执行级使用最高)
+     * 方法执行完成后后释放掉当前线程上的忽略策略.
+     * <p>
+     * 注意:
+     * <li>1.不要和{@link #handle(IgnoreStrategy)}一起混合使用,此方法只是简化操作,防止未释放掉资源造成的错误<li/>
+     * <li>2.不要和{@link InterceptorIgnore} 注解一起搭配使用,例如在mapper上的default方法里再调用此方法,最终优先级还是以此方法为准<li/>
+     * <li>3.记住,一旦调用了此方法,开始会覆盖你当前执行线程上的策略,结束必定会释放掉当前线程上的策略</>
+     * </p>
      *
      * @param ignoreStrategy 忽略策略
      * @param supplier       执行方法
@@ -118,6 +125,29 @@ public abstract class InterceptorIgnoreHelper {
         try {
             handle(ignoreStrategy);
             return supplier.get();
+        } finally {
+            clearIgnoreStrategy();
+        }
+    }
+
+    /**
+     * 按指定策略执行指定方法 (忽略线程级别,参数执行级使用最高)
+     * 方法执行完成后后释放掉当前线程上的忽略策略.
+     * <p>
+     * 注意:
+     * <li>1.不要和{@link #handle(IgnoreStrategy)}一起混合使用,此方法只是简化操作,防止未释放掉资源造成的错误<li/>
+     * <li>2.不要和{@link InterceptorIgnore} 注解一起搭配使用,例如在mapper上的default方法里再调用此方法,最终优先级还是以此方法为准<li/>
+     * <li>3.记住,一旦调用了此方法,开始会覆盖你当前执行线程上的策略,结束必定会释放掉当前线程上的策略</>
+     * </p>
+     *
+     * @param ignoreStrategy 忽略策略
+     * @param runnable       执行方法
+     * @since 3.5.10
+     */
+    public static void execute(IgnoreStrategy ignoreStrategy, Runnable runnable) {
+        try {
+            handle(ignoreStrategy);
+            runnable.run();
         } finally {
             clearIgnoreStrategy();
         }

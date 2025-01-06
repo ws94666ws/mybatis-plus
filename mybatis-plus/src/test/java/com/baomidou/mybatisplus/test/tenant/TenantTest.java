@@ -125,6 +125,16 @@ public class TenantTest extends BaseDbTest<EntityMapper> {
             Assertions.assertEquals(0, m.deleteById(entity.getId()));
             Assertions.assertEquals(1, InterceptorIgnoreHelper.execute(IgnoreStrategy.builder().tenantLine(true).build(), () -> m.deleteById(entity.getId())));
         });
+
+        doTest(m -> {
+            Entity entity = new Entity().setName("秋秋").setTenantId(2);
+            m.insert(entity);
+            Assertions.assertNull(m.selectById(entity.getId()));
+            InterceptorIgnoreHelper.execute(IgnoreStrategy.builder().tenantLine(true).build(), () -> {
+                Assertions.assertNotNull(m.selectById(entity.getId()));
+                Assertions.assertEquals(1, m.deleteById(entity.getId()));
+            });
+        });
     }
 
     @Override

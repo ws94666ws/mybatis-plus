@@ -300,9 +300,22 @@ public abstract class AbstractTemplateEngine {
      */
     @NotNull
     public Map<String, Object> getObjectMap(@NotNull ConfigBuilder config, @NotNull TableInfo tableInfo) {
+        Map<String, Object> objectMap = new HashMap<>();
         StrategyConfig strategyConfig = config.getStrategyConfig();
+        // 启用 schema 处理逻辑
+        String schemaName = "";
+        if (strategyConfig.isEnableSchema()) {
+            // 存在 schemaName 设置拼接 . 组合表名
+            schemaName = config.getDataSourceConfig().getSchemaName();
+            if (StringUtils.isNotBlank(schemaName)) {
+                tableInfo.setSchemaName(schemaName);
+                schemaName += ".";
+                tableInfo.setConvert(true);
+            }
+        }
+        objectMap.put("schemaName", schemaName);
         Map<String, Object> controllerData = strategyConfig.controller().renderData(tableInfo);
-        Map<String, Object> objectMap = new HashMap<>(controllerData);
+        objectMap.putAll(controllerData);
         Map<String, Object> mapperData = strategyConfig.mapper().renderData(tableInfo);
         objectMap.putAll(mapperData);
         Map<String, Object> serviceData = strategyConfig.service().renderData(tableInfo);
@@ -317,17 +330,6 @@ public abstract class AbstractTemplateEngine {
         objectMap.put("swagger", globalConfig.isSwagger());
         objectMap.put("springdoc", globalConfig.isSpringdoc());
         objectMap.put("date", globalConfig.getCommentDate());
-        // 启用 schema 处理逻辑
-        String schemaName = "";
-        if (strategyConfig.isEnableSchema()) {
-            // 存在 schemaName 设置拼接 . 组合表名
-            schemaName = config.getDataSourceConfig().getSchemaName();
-            if (StringUtils.isNotBlank(schemaName)) {
-                schemaName += ".";
-                tableInfo.setConvert(true);
-            }
-        }
-        objectMap.put("schemaName", schemaName);
         objectMap.put("table", tableInfo);
         objectMap.put("entity", tableInfo.getEntityName());
         return objectMap;

@@ -156,6 +156,13 @@ public class TableInfo {
     private final Map<String, TableField> tableFieldMap = new HashMap<>();
 
     /**
+     * @since 3.5.10
+     */
+    @Getter
+    @Setter
+    private String schemaName;
+
+    /**
      * 构造方法
      *
      * @param configBuilder 配置构建

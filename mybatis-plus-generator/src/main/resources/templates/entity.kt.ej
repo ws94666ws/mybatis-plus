@@ -38,7 +38,7 @@ class #(entity) {
 
 ### ----------  BEGIN 字段循环遍历  ----------
 #for(field : table.fields)
-#if(field.keyFlag)
+#if(field.isKeyFlag())
 #set(keyPropertyName = field.propertyName)
 #end
 #if(field.comment != null)
@@ -100,7 +100,7 @@ class #(entity) {
 #end
 #if(activeRecord)
     override fun pkVal(): Serializable? {
-#if(#(keyPropertyName))
+#if(keyPropertyName)
         return #(keyPropertyName)
 #else
         return null
@@ -111,7 +111,7 @@ class #(entity) {
     override fun toString(): String {
         return "#(entity){" +
 #for(field : table.fields)
-#if($!{foreach.index}==0)
+#if(for.index == 0)
         "#(field.propertyName)=" + #(field.propertyName) +
 #else
         ", #(field.propertyName)=" + #(field.propertyName) +

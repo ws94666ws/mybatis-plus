@@ -267,7 +267,8 @@ public class TableField {
     }
 
     public TableField setComment(String comment) {
-        this.comment = this.globalConfig.isSwagger()
+        //TODO 待重构此处
+        this.comment = (this.globalConfig.isSwagger() || this.globalConfig.isSpringdoc())
             && StringUtils.isNotBlank(comment) ? comment.replace("\"", "\\\"") : comment;
         return this;
     }

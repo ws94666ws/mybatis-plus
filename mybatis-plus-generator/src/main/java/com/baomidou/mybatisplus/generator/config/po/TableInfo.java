@@ -323,8 +323,8 @@ public class TableInfo {
     }
 
     public TableInfo setComment(String comment) {
-        //TODO 暂时挪动到这
-        this.comment = this.globalConfig.isSwagger()
+        //TODO 待重构此处
+        this.comment = (this.globalConfig.isSwagger() || this.globalConfig.isSpringdoc())
             && StringUtils.isNotBlank(comment) ? comment.replace("\"", "\\\"") : comment;
         return this;
     }

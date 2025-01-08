@@ -35,43 +35,14 @@ public class #(entity) {
 #set(keyPropertyName = field.propertyName)
 #end
 #if(field.comment != null)
-  #if(springdoc)
-    @Schema(description = "#(field.comment)")
-  #elseif(swagger)
-    @ApiModelProperty("#(field.comment)")
-  #else
+  #if(useJavaDoc)
     /**
      * #(field.comment)
      */
   #end
 #end
-#if(field.isKeyFlag())
-### 主键
-  #if(field.isKeyIdentityFlag())
-    @TableId(value = "#(field.annotationColumnName)", type = IdType.AUTO)
-  #elseif(idType != null && idType != "")
-    @TableId(value = "#(field.annotationColumnName)", type = IdType.#(idType))
-  #elseif(field.isConvert())
-    @TableId("#(field.annotationColumnName)")
-  #end
-### 普通字段
-#elseif(field.fill)
-### -----   存在字段填充设置   -----
-  #if(field.convert)
-    @TableField(value = "#(field.annotationColumnName)", fill = FieldFill.#(field.fill))
-  #else
-    @TableField(fill = FieldFill.#(field.fill))
-  #end
-#elseif(field.isConvert())
-    @TableField("#(field.annotationColumnName)")
-#end
-### 乐观锁注解
-#if(field.isVersionField())
-    @Version
-#end
-### 逻辑删除注解
-#if(field.isLogicDeleteField())
-    @TableLogic
+#for(an : field.annotationAttributesList)
+    #(an.displayName)
 #end
     private #(field.propertyType) #(field.propertyName);
 #end

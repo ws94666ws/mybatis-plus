@@ -31,57 +31,21 @@ public class ${entity} {
 <% var keyPropertyName; %>
 <% /** -----------BEGIN 字段循环遍历----------- **/ %>
 <% for(field in table.fields){ %>
+
     <%
     if(field.keyFlag){
         keyPropertyName = field.propertyName;
     }
     %>
     <% if(isNotEmpty(field.comment)){ %>
-
-        <% if(springdoc){ %>
-    @Schema(description = "${field.comment}")
-        <% }else if(swagger){ %>
-    @ApiModelProperty(value = "${field.comment}")
-        <% }else{ %>
+        <% if(useJavaDoc){ %>
     /**
      * ${field.comment}
      */
         <% } %>
     <% } %>
-    <% if(field.keyFlag){ %>
-    <%
-    /*主键*/
-    %>
-        <% if(field.keyIdentityFlag){ %>
-    @TableId(value = "${field.annotationColumnName}", type = IdType.AUTO)
-        <% }else if(isNotEmpty(idType)){ %>
-    @TableId(value = "${field.annotationColumnName}", type = IdType.${idType})
-        <% }else if(field.convert){ %>
-    @TableId("${field.annotationColumnName}")
-         <% } %>
-    <%
-    /*普通字段*/
-    %>
-    <% }else if(isNotEmpty(field.fill)){ %>
-        <% if(field.convert){ %>
-    @TableField(value = "${field.annotationColumnName}", fill = FieldFill.${field.fill})
-        <% }else{ %>
-    @TableField(fill = FieldFill.${field.fill})
-        <% } %>
-    <% }else if(field.convert){ %>
-    @TableField("${field.annotationColumnName}")
-    <% } %>
-    <%
-    /*乐观锁注解*/
-    %>
-    <% if(field.versionField){ %>
-    @Version
-    <% } %>
-    <%
-    /*逻辑删除注解*/
-    %>
-    <% if(field.logicDeleteField){ %>
-    @TableLogic
+    <% for(an in field.annotationAttributesList){ %>
+    ${an.displayName}
     <% } %>
     private ${field.propertyType} ${field.propertyName};
 <% } %>

@@ -23,7 +23,9 @@ import com.baomidou.mybatisplus.core.handlers.AnnotationHandler;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.generator.DefaultTableFieldAnnotationHandler;
 import com.baomidou.mybatisplus.generator.IFill;
+import com.baomidou.mybatisplus.generator.ITableFieldAnnotationHandler;
 import com.baomidou.mybatisplus.generator.ITemplate;
 import com.baomidou.mybatisplus.generator.config.ConstVal;
 import com.baomidou.mybatisplus.generator.config.GlobalConfig;
@@ -32,6 +34,7 @@ import com.baomidou.mybatisplus.generator.config.StrategyConfig;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.function.ConverterFileName;
+import com.baomidou.mybatisplus.generator.model.AnnotationAttributes;
 import com.baomidou.mybatisplus.generator.model.ClassAnnotationAttributes;
 import com.baomidou.mybatisplus.generator.util.ClassUtils;
 import lombok.Getter;
@@ -243,6 +246,13 @@ public class Entity implements ITemplate {
     private final List<ClassAnnotationAttributes> classAnnotations = new ArrayList<>();
 
     /**
+     * 字段注解处理器
+     *
+     * @since 3.5.10
+     */
+    private ITableFieldAnnotationHandler tableFieldAnnotationHandler = new DefaultTableFieldAnnotationHandler();
+
+    /**
      * <p>
      * 父类 Class 反射属性转换为公共字段
      * </p>
@@ -401,10 +411,21 @@ public class Entity implements ITemplate {
             String displayName = String.format("@Schema(name = \"%s\", description = \"%s\")", tableInfo.getEntityName(), comment);
             this.classAnnotations.add(new ClassAnnotationAttributes(displayName, "io.swagger.v3.oas.annotations.media.Schema"));
         }
+        if (tableFieldAnnotationHandler != null) {
+            tableInfo.getFields().forEach(tableField -> {
+                List<AnnotationAttributes> annotationAttributes = tableFieldAnnotationHandler.handle(tableInfo, tableField);
+                if (annotationAttributes != null && !annotationAttributes.isEmpty()) {
+                    tableField.addAnnotationAttributesList(annotationAttributes);
+                    annotationAttributes.forEach(attributes -> importPackages.addAll(attributes.getImportPackages()));
+                }
+            });
+        }
         this.classAnnotations.forEach(attributes -> {
             attributes.handleDisplayName(tableInfo);
             importPackages.addAll(attributes.getImportPackages());
         });
+        //TODO 外部暂时不要使用此属性,内置模板暂时使用
+        data.put("useJavaDoc", !(globalConfig.isSwagger() || globalConfig.isSpringdoc()));
         data.put("entityClassAnnotations", this.classAnnotations.stream()
             .sorted(Comparator.comparingInt(s -> s.getDisplayName().length())).collect(Collectors.toList()));
         data.put("importEntityPackages", importPackages.stream().sorted().collect(Collectors.toList()));
@@ -767,6 +788,18 @@ public class Entity implements ITemplate {
          */
         public Builder addClassAnnotation(@NotNull ClassAnnotationAttributes attributes) {
             this.entity.classAnnotations.add(attributes);
+            return this;
+        }
+
+        /**
+         * 指定字段注解处理器
+         *
+         * @param tableFieldAnnotationHandler 字段处理器
+         * @return this
+         * @since 3.5.10
+         */
+        public Builder tableFieldAnnotationHandler(@NotNull ITableFieldAnnotationHandler tableFieldAnnotationHandler) {
+            this.entity.tableFieldAnnotationHandler = tableFieldAnnotationHandler;
             return this;
         }
 

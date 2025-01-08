@@ -139,7 +139,7 @@ public class AutoGenerator {
      *
      * @param globalConfig 全局配置
      * @return this
-     * @see 3.5.0
+     * @since  3.5.0
      */
     public AutoGenerator global(@NotNull GlobalConfig globalConfig) {
         this.globalConfig = globalConfig;

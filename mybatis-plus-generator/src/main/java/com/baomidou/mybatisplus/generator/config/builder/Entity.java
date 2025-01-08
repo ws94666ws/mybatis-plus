@@ -32,7 +32,7 @@ import com.baomidou.mybatisplus.generator.config.StrategyConfig;
 import com.baomidou.mybatisplus.generator.config.po.TableInfo;
 import com.baomidou.mybatisplus.generator.config.rules.NamingStrategy;
 import com.baomidou.mybatisplus.generator.function.ConverterFileName;
-import com.baomidou.mybatisplus.generator.model.AnnotationAttributes;
+import com.baomidou.mybatisplus.generator.model.ClassAnnotationAttributes;
 import com.baomidou.mybatisplus.generator.util.ClassUtils;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -240,7 +240,7 @@ public class Entity implements ITemplate {
      * @since 3.5.10
      */
     @Getter
-    private final List<AnnotationAttributes> classAnnotations = new ArrayList<>();
+    private final List<ClassAnnotationAttributes> classAnnotations = new ArrayList<>();
 
     /**
      * <p>
@@ -371,12 +371,12 @@ public class Entity implements ITemplate {
         if (!kotlin) {
             // 原先kt模板没有处理这些,作为兼容项
             if (chain) {
-                this.classAnnotations.add(new AnnotationAttributes("@Accessors(chain = true)", "lombok.experimental.Accessors"));
+                this.classAnnotations.add(new ClassAnnotationAttributes("@Accessors(chain = true)", "lombok.experimental.Accessors"));
             }
             if (lombok && defaultLombok) {
                 // 原先lombok默认只有这两个
-                this.classAnnotations.add(new AnnotationAttributes("@Getter", "lombok.Getter"));
-                this.classAnnotations.add(new AnnotationAttributes("@Setter", "lombok.Setter"));
+                this.classAnnotations.add(new ClassAnnotationAttributes("@Getter", "lombok.Getter"));
+                this.classAnnotations.add(new ClassAnnotationAttributes("@Setter", "lombok.Setter"));
             }
         }
         if (tableInfo.isConvert()) {
@@ -388,23 +388,21 @@ public class Entity implements ITemplate {
             }
             //@TableName("${schemaName}${table.name}")
             String displayName = String.format("@TableName(\"%s%s\")", schemaName, tableInfo.getName());
-            this.classAnnotations.add(new AnnotationAttributes(TableName.class, displayName));
+            this.classAnnotations.add(new ClassAnnotationAttributes(TableName.class, displayName));
         }
         if (globalConfig.isSwagger()) {
             //@ApiModel(value = "${entity}对象", description = "${table.comment!}")
             String displayName = String.format("@ApiModel(value = \"%s对象\", description = \"%s\")", tableInfo.getEntityName(), comment);
-            this.classAnnotations.add(new AnnotationAttributes("@ApiModel",
+            this.classAnnotations.add(new ClassAnnotationAttributes(
                 displayName, "io.swagger.annotations.ApiModel", "io.swagger.annotations.ApiModelProperty"));
         }
         if (globalConfig.isSpringdoc()) {
             //@Schema(name = "${entity}", description = "${table.comment!}")
             String displayName = String.format("@Schema(name = \"%s\", description = \"%s\")", tableInfo.getEntityName(), comment);
-            this.classAnnotations.add(new AnnotationAttributes(displayName, "io.swagger.v3.oas.annotations.media.Schema"));
+            this.classAnnotations.add(new ClassAnnotationAttributes(displayName, "io.swagger.v3.oas.annotations.media.Schema"));
         }
         this.classAnnotations.forEach(attributes -> {
-            if (attributes.getDisplayNameFunction() != null) {
-                attributes.setDisplayName(attributes.getDisplayNameFunction().apply(tableInfo));
-            }
+            attributes.handleDisplayName(tableInfo);
             importPackages.addAll(attributes.getImportPackages());
         });
         data.put("entityClassAnnotations", this.classAnnotations.stream()
@@ -499,16 +497,16 @@ public class Entity implements ITemplate {
         }
 
         /**
-         * 开启lombok模型 (这里会把注解属性都加入进去,无论是否启用kotlin)
+         * 开启lombok模型 (这里会把注解属性都加入进去,无论是否启用{@link GlobalConfig#isKotlin()})
          *
          * @param attributes 注解属性集合
          * @return this
          * @since 3.5.10
          */
-        public Builder enableLombok(@NotNull AnnotationAttributes... attributes) {
+        public Builder enableLombok(@NotNull ClassAnnotationAttributes... attributes) {
             this.entity.lombok = true;
             this.entity.defaultLombok = false;
-            for (AnnotationAttributes attribute : attributes) {
+            for (ClassAnnotationAttributes attribute : attributes) {
                 this.addClassAnnotation(attribute);
             }
             return this;
@@ -767,7 +765,7 @@ public class Entity implements ITemplate {
          * @return this
          * @since 3.5.10
          */
-        public Builder addClassAnnotation(@NotNull AnnotationAttributes attributes) {
+        public Builder addClassAnnotation(@NotNull ClassAnnotationAttributes attributes) {
             this.entity.classAnnotations.add(attributes);
             return this;
         }

@@ -18,13 +18,13 @@ package com.baomidou.mybatisplus.generator.config.builder;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.handlers.AnnotationHandler;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.generator.DefaultTableAnnotationHandler;
 import com.baomidou.mybatisplus.generator.DefaultTableFieldAnnotationHandler;
 import com.baomidou.mybatisplus.generator.IFill;
+import com.baomidou.mybatisplus.generator.ITableAnnotationHandler;
 import com.baomidou.mybatisplus.generator.ITableFieldAnnotationHandler;
 import com.baomidou.mybatisplus.generator.ITemplate;
 import com.baomidou.mybatisplus.generator.config.ConstVal;
@@ -235,6 +235,7 @@ public class Entity implements ITemplate {
     /**
      * 默认lombok (兼容属性只有Getter和Setter)
      */
+    @Getter
     private boolean defaultLombok = true;
 
     /**
@@ -244,6 +245,13 @@ public class Entity implements ITemplate {
      */
     @Getter
     private final List<ClassAnnotationAttributes> classAnnotations = new ArrayList<>();
+
+    /**
+     * 表注解处理器
+     *
+     * @since 3.5.10
+     */
+    private ITableAnnotationHandler tableAnnotationHandler = new DefaultTableAnnotationHandler();
 
     /**
      * 字段注解处理器
@@ -371,45 +379,18 @@ public class Entity implements ITemplate {
         data.put("entityLombokModel", this.lombok);
         data.put("entityBooleanColumnRemoveIsPrefix", this.booleanColumnRemoveIsPrefix);
         data.put("superEntityClass", ClassUtils.getSimpleName(this.superClass));
-        GlobalConfig globalConfig = tableInfo.getGlobalConfig();
-        String comment = tableInfo.getComment();
         Set<String> importPackages = new HashSet<>(tableInfo.getImportPackages());
-        if (StringUtils.isBlank(comment)) {
-            comment = StringPool.EMPTY;
-        }
-        boolean kotlin = globalConfig.isKotlin();
-        if (!kotlin) {
-            // 原先kt模板没有处理这些,作为兼容项
-            if (chain) {
-                this.classAnnotations.add(new ClassAnnotationAttributes("@Accessors(chain = true)", "lombok.experimental.Accessors"));
+        GlobalConfig globalConfig = tableInfo.getGlobalConfig();
+        List<ClassAnnotationAttributes> classAnnotationAttributes = new ArrayList<>();
+        if (tableAnnotationHandler != null) {
+            List<ClassAnnotationAttributes> classAnnotationAttributesList = tableAnnotationHandler.handle(tableInfo, this);
+            if (classAnnotationAttributesList != null && !classAnnotationAttributesList.isEmpty()) {
+                classAnnotationAttributes = classAnnotationAttributesList;
+                classAnnotationAttributesList.forEach(attributes -> {
+                    attributes.handleDisplayName(tableInfo);
+                    importPackages.addAll(attributes.getImportPackages());
+                });
             }
-            if (lombok && defaultLombok) {
-                // 原先lombok默认只有这两个
-                this.classAnnotations.add(new ClassAnnotationAttributes("@Getter", "lombok.Getter"));
-                this.classAnnotations.add(new ClassAnnotationAttributes("@Setter", "lombok.Setter"));
-            }
-        }
-        if (tableInfo.isConvert()) {
-            String schemaName = tableInfo.getSchemaName();
-            if (StringUtils.isBlank(schemaName)) {
-                schemaName = StringPool.EMPTY;
-            } else {
-                schemaName = schemaName + StringPool.DOT;
-            }
-            //@TableName("${schemaName}${table.name}")
-            String displayName = String.format("@TableName(\"%s%s\")", schemaName, tableInfo.getName());
-            this.classAnnotations.add(new ClassAnnotationAttributes(TableName.class, displayName));
-        }
-        if (globalConfig.isSwagger()) {
-            //@ApiModel(value = "${entity}对象", description = "${table.comment!}")
-            String displayName = String.format("@ApiModel(value = \"%s对象\", description = \"%s\")", tableInfo.getEntityName(), comment);
-            this.classAnnotations.add(new ClassAnnotationAttributes(
-                displayName, "io.swagger.annotations.ApiModel", "io.swagger.annotations.ApiModelProperty"));
-        }
-        if (globalConfig.isSpringdoc()) {
-            //@Schema(name = "${entity}", description = "${table.comment!}")
-            String displayName = String.format("@Schema(name = \"%s\", description = \"%s\")", tableInfo.getEntityName(), comment);
-            this.classAnnotations.add(new ClassAnnotationAttributes(displayName, "io.swagger.v3.oas.annotations.media.Schema"));
         }
         if (tableFieldAnnotationHandler != null) {
             tableInfo.getFields().forEach(tableField -> {
@@ -420,13 +401,9 @@ public class Entity implements ITemplate {
                 }
             });
         }
-        this.classAnnotations.forEach(attributes -> {
-            attributes.handleDisplayName(tableInfo);
-            importPackages.addAll(attributes.getImportPackages());
-        });
         //TODO 外部暂时不要使用此属性,内置模板暂时使用
         data.put("useJavaDoc", !(globalConfig.isSwagger() || globalConfig.isSpringdoc()));
-        data.put("entityClassAnnotations", this.classAnnotations.stream()
+        data.put("entityClassAnnotations", classAnnotationAttributes.stream()
             .sorted(Comparator.comparingInt(s -> s.getDisplayName().length())).collect(Collectors.toList()));
         data.put("importEntityPackages", importPackages.stream().sorted().collect(Collectors.toList()));
         return data;
@@ -800,6 +777,17 @@ public class Entity implements ITemplate {
          */
         public Builder tableFieldAnnotationHandler(@NotNull ITableFieldAnnotationHandler tableFieldAnnotationHandler) {
             this.entity.tableFieldAnnotationHandler = tableFieldAnnotationHandler;
+            return this;
+        }
+
+        /**
+         * 指定表注解处理器
+         * @param tableAnnotationHandler 表注解处理器
+         * @since 3.5.10
+         * @return this
+         */
+        public Builder tableAnnotationHandler(@NotNull ITableAnnotationHandler tableAnnotationHandler){
+            this.entity.tableAnnotationHandler = tableAnnotationHandler;
             return this;
         }
 

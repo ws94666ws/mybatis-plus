@@ -68,6 +68,7 @@ class ${entity} {
     }
 
 </#if>
+<#if entityToString>
     override fun toString(): String {
         return "${entity}{" +
 <#list table.fields as field>
@@ -79,4 +80,5 @@ class ${entity} {
 </#list>
         "}"
     }
+</#if>
 }

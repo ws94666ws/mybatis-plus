@@ -68,7 +68,7 @@ class ${entity} {
     }
 
 <% } %>
-<% if(!entityLombokModel){ %>
+<% if(entityToString){ %>
     @Override
     override fun toString(): String  {
         return "${entity}{" +

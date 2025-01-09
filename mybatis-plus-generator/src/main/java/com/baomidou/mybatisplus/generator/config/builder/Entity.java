@@ -233,10 +233,23 @@ public class Entity implements ITemplate {
     private boolean generate = true;
 
     /**
-     * 默认lombok (兼容属性只有Getter和Setter)
+     * 默认lombok(低版本属性默认只有Getter和Setter)
+     * <p>当升级至3.5.10后,默认启用@ToString,如果不需要,可通过{@link Builder#toString(boolean)}关闭</p>
+     *
+     * @since 3.5.10
      */
     @Getter
     private boolean defaultLombok = true;
+
+    /**
+     * 是否生成ToString
+     * <p>默认情况下,非lombok下会自动生成ToString方法,但lombok下没有处理此</p>
+     * <p>支持控制toString方法是否生成</p>
+     *
+     * @since 3.5.10
+     */
+    @Getter
+    private boolean toString = true;
 
     /**
      * 实体类注解
@@ -381,17 +394,17 @@ public class Entity implements ITemplate {
         data.put("superEntityClass", ClassUtils.getSimpleName(this.superClass));
         Set<String> importPackages = new HashSet<>(tableInfo.getImportPackages());
         GlobalConfig globalConfig = tableInfo.getGlobalConfig();
-        List<ClassAnnotationAttributes> classAnnotationAttributes = new ArrayList<>();
+        List<ClassAnnotationAttributes> classAnnotationAttributes = new ArrayList<>(this.getClassAnnotations());
         if (tableAnnotationHandler != null) {
             List<ClassAnnotationAttributes> classAnnotationAttributesList = tableAnnotationHandler.handle(tableInfo, this);
             if (classAnnotationAttributesList != null && !classAnnotationAttributesList.isEmpty()) {
-                classAnnotationAttributes = classAnnotationAttributesList;
-                classAnnotationAttributesList.forEach(attributes -> {
-                    attributes.handleDisplayName(tableInfo);
-                    importPackages.addAll(attributes.getImportPackages());
-                });
+                classAnnotationAttributes.addAll(classAnnotationAttributesList);
             }
         }
+        classAnnotationAttributes.forEach(attributes -> {
+            attributes.handleDisplayName(tableInfo);
+            importPackages.addAll(attributes.getImportPackages());
+        });
         if (tableFieldAnnotationHandler != null) {
             tableInfo.getFields().forEach(tableField -> {
                 List<AnnotationAttributes> annotationAttributes = tableFieldAnnotationHandler.handle(tableInfo, tableField);
@@ -406,6 +419,7 @@ public class Entity implements ITemplate {
         data.put("entityClassAnnotations", classAnnotationAttributes.stream()
             .sorted(Comparator.comparingInt(s -> s.getDisplayName().length())).collect(Collectors.toList()));
         data.put("importEntityPackages", importPackages.stream().sorted().collect(Collectors.toList()));
+        data.put("entityToString", this.toString);
         return data;
     }
 
@@ -485,6 +499,7 @@ public class Entity implements ITemplate {
 
         /**
          * 开启lombok模型 (默认添加Getter和Setter)
+         * <p>自3.5.10开始,默认添加ToString搭配,如果想关闭可通过{@link #toString(boolean)}关闭</p>
          *
          * @return this
          * @since 3.5.0
@@ -495,7 +510,10 @@ public class Entity implements ITemplate {
         }
 
         /**
-         * 开启lombok模型 (这里会把注解属性都加入进去,无论是否启用{@link GlobalConfig#isKotlin()})
+         * 开启lombok模型 (会把注解属性都加入进去,无论是否启用{@link GlobalConfig#isKotlin()})
+         * <p>注意如果通过此方法开启lombok模型,默认的lombok注解(get,set,toString)都将不会生成,请自行控制添加</p>
+         * <p>由{@link #toString(boolean)}控制的也会失效</p>
+         * 使用@Data示例: enableLombok(new ClassAnnotationAttributes("@Data","lombok.Data"))
          *
          * @param attributes 注解属性集合
          * @return this
@@ -790,6 +808,19 @@ public class Entity implements ITemplate {
             this.entity.tableAnnotationHandler = tableAnnotationHandler;
             return this;
         }
+
+        /**
+         * 设置是否生成ToString方法
+         *
+         * @param toString 是否生成
+         * @return this
+         * @since 3.5.10
+         */
+        public Builder toString(boolean toString) {
+            this.entity.toString = toString;
+            return this;
+        }
+
 
         public Entity get() {
             String superClass = this.entity.superClass;

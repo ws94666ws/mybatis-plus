@@ -68,6 +68,7 @@ class #(entity) {
     }
 
 #end
+#if(entityToString)
     override fun toString(): String {
         return "#(entity){" +
 #for(field : table.fields)
@@ -79,4 +80,5 @@ class #(entity) {
 #end
         "}"
     }
+#end
 }

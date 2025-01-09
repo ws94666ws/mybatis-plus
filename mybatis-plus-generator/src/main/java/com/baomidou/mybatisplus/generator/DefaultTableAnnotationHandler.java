@@ -48,10 +48,15 @@ public class DefaultTableAnnotationHandler implements ITableAnnotationHandler {
             if (entity.isChain()) {
                 annotationAttributesList.add(new ClassAnnotationAttributes("@Accessors(chain = true)", "lombok.experimental.Accessors"));
             }
-            if (entity.isLombok() && entity.isDefaultLombok()) {
-                // 原先lombok默认只有这两个
-                annotationAttributesList.add(new ClassAnnotationAttributes("@Getter", "lombok.Getter"));
-                annotationAttributesList.add(new ClassAnnotationAttributes("@Setter", "lombok.Setter"));
+            if (entity.isLombok()) {
+                if (entity.isDefaultLombok()) {
+                    // 原先lombok默认只有这两个
+                    annotationAttributesList.add(new ClassAnnotationAttributes("@Getter", "lombok.Getter"));
+                    annotationAttributesList.add(new ClassAnnotationAttributes("@Setter", "lombok.Setter"));
+                    if (entity.isToString()) {
+                        annotationAttributesList.add(new ClassAnnotationAttributes("@ToString", "lombok.ToString"));
+                    }
+                }
             }
         }
         if (tableInfo.isConvert()) {

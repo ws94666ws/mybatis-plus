@@ -90,7 +90,7 @@ public class ${entity} {
   #end
     }
 #end
-#if(!${entityLombokModel})
+#if(!${entityLombokModel} && ${entityToString})
 
     @Override
     public String toString() {

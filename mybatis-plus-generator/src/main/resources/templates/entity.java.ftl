@@ -87,7 +87,7 @@ public class ${entity} {
     </#if>
     }
 </#if>
-<#if !entityLombokModel>
+<#if !entityLombokModel && entityToString>
 
     @Override
     public String toString() {

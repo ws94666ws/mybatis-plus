@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import net.sf.jsqlparser.statement.select.Values;
 import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
@@ -663,7 +664,7 @@ public class DataChangeRecorderInnerInterceptor implements InnerInterceptor {
             selectItems.add(new SelectItem<>(column));
         }
         TableInfo tableInfo = getTableInfoByTableName(tableName);
-        if (tableInfo == null) {
+        if (tableInfo == null || StringUtils.isBlank(tableInfo.getKeyColumn())) {
             return Columns2SelectItemsResult.build(selectItems, 0);
         }
         Column pk = new Column(tableInfo.getKeyColumn());

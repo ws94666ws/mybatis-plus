@@ -35,7 +35,7 @@ public class ${entity} {
 #set($keyPropertyName=${field.propertyName})
 #end
 #if("$!field.comment" != "")
-  #if(${useJavaDoc})
+  #if(${entityFieldUseJavaDoc})
     /**
      * ${field.comment}
      */

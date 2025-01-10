@@ -33,7 +33,7 @@ class ${entity} {
     }
     %>
     <% if(isNotEmpty(field.comment)){ %>
-        <% if(useJavaDoc){ %>
+        <% if(entityFieldUseJavaDoc){ %>
     /**
      * ${field.comment}
      */

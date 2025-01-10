@@ -31,7 +31,7 @@ class #(entity) {
 #set(keyPropertyName = field.propertyName)
 #end
 #if(field.comment != null)
-    #if(useJavaDoc)
+    #if(entityFieldUseJavaDoc)
     /**
      * #(field.comment)
      */

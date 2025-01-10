@@ -34,7 +34,7 @@ public class ${entity} {
     </#if>
 
     <#if field.comment!?length gt 0>
-        <#if useJavaDoc>
+        <#if entityFieldUseJavaDoc>
     /**
      * ${field.comment}
      */

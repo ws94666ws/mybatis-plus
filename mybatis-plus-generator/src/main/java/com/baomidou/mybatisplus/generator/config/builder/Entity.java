@@ -243,13 +243,23 @@ public class Entity implements ITemplate {
 
     /**
      * 是否生成ToString
-     * <p>默认情况下,非lombok下会自动生成ToString方法,但lombok下没有处理此</p>
+     * <p>低版本下,lombok没有处理ToString逻辑,现在处理生成@ToString</p>
      * <p>支持控制toString方法是否生成</p>
      *
      * @since 3.5.10
      */
     @Getter
     private boolean toString = true;
+
+
+    /**
+     * 启用字段文档注释 (当注释字段注释不为空才生效)
+     * <p>低版本下,如果是启用swagger或者springdoc时,不会生成,现在统一修改为生成文档注释</p>
+     *
+     * @since 3.5.10
+     */
+    @Getter
+    private boolean fieldUseJavaDoc = true;
 
     /**
      * 实体类注解
@@ -414,8 +424,7 @@ public class Entity implements ITemplate {
                 }
             });
         }
-        //TODO 外部暂时不要使用此属性,内置模板暂时使用
-        data.put("useJavaDoc", !(globalConfig.isSwagger() || globalConfig.isSpringdoc()));
+        data.put("entityFieldUseJavaDoc", fieldUseJavaDoc);
         data.put("entityClassAnnotations", classAnnotationAttributes.stream()
             .sorted(Comparator.comparingInt(s -> s.getDisplayName().length())).collect(Collectors.toList()));
         data.put("importEntityPackages", importPackages.stream().sorted().collect(Collectors.toList()));
@@ -818,6 +827,18 @@ public class Entity implements ITemplate {
          */
         public Builder toString(boolean toString) {
             this.entity.toString = toString;
+            return this;
+        }
+
+        /**
+         * 设置字段是否生成文档注释
+         *
+         * @param fieldUseJavaDoc 是否生成文档注释
+         * @return this
+         * @since 3.5.10
+         */
+        public Builder fieldUseJavaDoc(boolean fieldUseJavaDoc) {
+            this.entity.fieldUseJavaDoc = fieldUseJavaDoc;
             return this;
         }
 

@@ -175,7 +175,7 @@ public class MybatisMapperProxy<T> implements InvocationHandler, Serializable {
                     Class<?> mapperInterface = mybatisMapperProxy.getMapperInterface();
                     IgnoreStrategy ignoreStrategy = InterceptorIgnoreHelper.findIgnoreStrategy(mapperInterface, method);
                     if (ignoreStrategy == null) {
-                        ignoreStrategy = IgnoreStrategy.DEFAULT;
+                        ignoreStrategy = IgnoreStrategy.builder().build();
                     }
                     InterceptorIgnoreHelper.handle(ignoreStrategy);
                     return methodHandle.bindTo(proxy).invokeWithArguments(args);

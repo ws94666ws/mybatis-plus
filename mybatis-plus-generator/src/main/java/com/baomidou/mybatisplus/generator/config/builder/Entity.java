@@ -77,7 +77,7 @@ public class Entity implements ITemplate {
     private String javaTemplate = ConstVal.TEMPLATE_ENTITY_JAVA;
 
     /**
-     * Kotlin模板默认撸
+     * Kotlin模板默认路径
      */
     @Getter
     private String kotlinTemplate = ConstVal.TEMPLATE_ENTITY_KT;

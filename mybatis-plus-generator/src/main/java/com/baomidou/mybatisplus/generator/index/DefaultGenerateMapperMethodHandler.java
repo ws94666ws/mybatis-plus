@@ -16,6 +16,7 @@
 package com.baomidou.mybatisplus.generator.index;
 
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.generator.config.GlobalConfig;
 import com.baomidou.mybatisplus.generator.config.builder.Entity;
@@ -34,12 +35,28 @@ import java.util.stream.Collectors;
 
 /**
  * 按字符串或者字符串常量方法生成查询条件
+ * <p>复合索引下,第一个字段不会判空,后续字段会进行判空处理,也就是只能保证第一个字段不传递空,无法解决掉索引中间项传递为空的情况</p>
+ * <p>由于需求不一样,默认只处理单字段索引,如果默认复合索引的方案符合你的要求,你可以考虑{@link #singleIndex}设置成false</p>
  *
  * @author nieqiurong
  * @see Entity.Builder#enableColumnConstant()
  * @since 3.5.10
  */
 public class DefaultGenerateMapperMethodHandler extends AbstractMapperMethodHandler {
+
+    /**
+     * 只生成单索引字段方法(默认true)
+     * <p>当设置为true时,代表会过滤掉复合索引</p>
+     */
+    private final boolean singleIndex;
+
+    public DefaultGenerateMapperMethodHandler() {
+        this(true);
+    }
+
+    public DefaultGenerateMapperMethodHandler(boolean singleIndex) {
+        this.singleIndex = singleIndex;
+    }
 
     @Override
     public List<MapperMethod> getMethodList(TableInfo tableInfo) {
@@ -55,10 +72,11 @@ public class DefaultGenerateMapperMethodHandler extends AbstractMapperMethodHand
             String indexName = entry.getKey();
             List<DatabaseMetaDataWrapper.Index> indexList = entry.getValue();
             int indexSize = indexList.size();
-            if ("PRIMARY".equals(indexName)) {
-                if (indexSize == 1) {
-                    continue;
-                }
+            if (this.singleIndex && indexSize > 1) {
+                continue;
+            }
+            if ("PRIMARY".equals(indexName) && indexSize == 1) {
+                continue;
             }
             List<TableField> tableFieldList = new ArrayList<>();
             Map<String, TableField> tableFieldMap = tableInfo.getTableFieldMap();
@@ -72,6 +90,10 @@ public class DefaultGenerateMapperMethodHandler extends AbstractMapperMethodHand
                     uniqueKey = true;
                 }
                 TableField tableField = tableFieldMap.get(index.getColumnName());
+                if (index.getColumnName().equals(entity.getLogicDeleteColumnName())
+                    || tableField.getPropertyName().equals(entity.getLogicDeletePropertyName())) {
+                    continue;
+                }
                 tableFieldList.add(tableField);
                 baseMethodNameBuilder.append(tableField.getCapitalName());
                 if (indexSize > 1) {
@@ -101,6 +123,9 @@ public class DefaultGenerateMapperMethodHandler extends AbstractMapperMethodHand
                 }
             }
             String baseMethodName = baseMethodNameBuilder.toString();
+            if (StringUtils.isBlank(baseMethodNameBuilder)) {
+                continue;
+            }
             String args = argsBuilder.toString();
             String baseWrapper = baseWrapperBuilder.toString();
             boolean returnList = (indexSize > 1 || !uniqueKey);
@@ -145,9 +170,14 @@ public class DefaultGenerateMapperMethodHandler extends AbstractMapperMethodHand
 
     @Override
     public Set<String> getImportPackages(TableInfo tableInfo) {
+        GlobalConfig globalConfig = tableInfo.getGlobalConfig();
         Set<String> imports = new HashSet<>();
-        imports.add(ObjectUtils.class.getName());
-        imports.add(List.class.getName());
+        if (!singleIndex) {
+            imports.add(ObjectUtils.class.getName());
+        }
+        if (!globalConfig.isKotlin()) {
+            imports.add(List.class.getName());
+        }
         imports.add(Wrappers.class.getName());
         return imports;
     }

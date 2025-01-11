@@ -13,9 +13,11 @@
 - feat: 代码生成器提供`Mapper.Builder.generateMapperMethodHandler`处理器基于索引生成索引方法
 - feat: 代码生成器Entity支持自定义Class注解和字段注解生成
 - feat: 代码生成器Entity支持lombok模式指定生成类注解
-- feat: 代码生成器Entity支持`ToString(Entity.Builder.toString(boolean))`方法控制生成 (默认生成,lombok模式下将会生成@ToString,低版本下lombok不生成,属于不兼容改动)
+- feat: 代码生成器Entity支持ToString`(Entity.Builder.toString(boolean))`方法控制生成 (默认生成,lombok模式下将会生成@ToString,低版本下lombok不生成,属于不兼容改动)
 - feat: 代码生成器Entity支持字段文档注释(`Entity.Builder.fieldUseJavaDoc(boolean)`)控制生成 (默认生成,低版本下,使用swagger或springdoc不会生成字段文档注释,属于不兼容改动)
 - feat: 重写动态语句生成(生成执行SQL将不再包含\n换行符).
 - feat: 升级mybatis至3.5.19
 - feat: 升级springboot至3.4.1
 - feat: 升级kotlin至2.1.0
+- 实用性低,检查语法不完善,计划移除IllegalSQLInnerInterceptor插件
+- 功能缺陷较多,计划移除DataChangeRecorderInnerInterceptor插件

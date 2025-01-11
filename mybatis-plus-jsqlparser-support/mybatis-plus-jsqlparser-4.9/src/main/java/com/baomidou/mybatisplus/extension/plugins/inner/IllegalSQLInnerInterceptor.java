@@ -85,8 +85,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>7.where条件使用了 使用子查询</p>
  *
  * @author willenfoo
+ * @deprecated 3.5.10 实用性不高,语法分析太差,计划移除
  * @since 3.4.0
  */
+@Deprecated
 public class IllegalSQLInnerInterceptor extends JsqlParserSupport implements InnerInterceptor {
 
     /**

@@ -121,8 +121,10 @@ import net.sf.jsqlparser.statement.update.UpdateSet;
  * </p>
  *
  * @author yuxiaobin
+ * @deprecated 3.5.10 问题太多,计划移除
  * @date 2022-8-21
  */
+@Deprecated
 public class DataChangeRecorderInnerInterceptor implements InnerInterceptor {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());

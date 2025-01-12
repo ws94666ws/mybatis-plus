@@ -403,7 +403,6 @@ public class Entity implements ITemplate {
         data.put("entityBooleanColumnRemoveIsPrefix", this.booleanColumnRemoveIsPrefix);
         data.put("superEntityClass", ClassUtils.getSimpleName(this.superClass));
         Set<String> importPackages = new HashSet<>(tableInfo.getImportPackages());
-        GlobalConfig globalConfig = tableInfo.getGlobalConfig();
         List<ClassAnnotationAttributes> classAnnotationAttributes = new ArrayList<>(this.getClassAnnotations());
         if (tableAnnotationHandler != null) {
             List<ClassAnnotationAttributes> classAnnotationAttributesList = tableAnnotationHandler.handle(tableInfo, this);

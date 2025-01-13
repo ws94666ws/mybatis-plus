@@ -1,4 +1,7 @@
 ﻿# CHANGELOG
+## [v3.5.10.1] 2025.01.13
+- fix: 修复动态节点处理错误
+
 ## [v3.5.10] 2025.01.12
 - fix: 修复字段有`TableField`注解但未指定`value`值下全局`columnFormat`未生效问题
 - fix: 修复enjoy模板生成kotlin代码报错

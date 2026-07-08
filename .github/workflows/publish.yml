@@ -1,15 +1,22 @@
 name: Publish package to the Maven Central Repository
 on:
-  push:
-    tags:
-      - v*
+  create:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish, for example v3.5.17'
+        required: true
+        type: string
 jobs:
   build:
+    if: (github.event_name == 'create' && github.event.ref_type == 'tag' && startsWith(github.event.ref, 'v')) || (github.event_name == 'workflow_dispatch' && startsWith(inputs.tag, 'v'))
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.event.ref }}
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
